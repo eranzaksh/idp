@@ -42,7 +42,7 @@ resource "aws_db_instance" "idp_db" {
   vpc_security_group_ids  = ["sg-0066aa02b48a24a0b"]
   db_subnet_group_name    = aws_db_subnet_group.idp_db_subnet_group.name
   skip_final_snapshot     = true
-  deletion_protection     = true
+  deletion_protection     = false
   publicly_accessible     = true
   
   tags = {
