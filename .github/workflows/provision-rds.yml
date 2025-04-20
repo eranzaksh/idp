@@ -1,0 +1,36 @@
+name: Provision IDP RDS
+
+on:
+  workflow_dispatch:
+    inputs:
+      db_username:
+        description: 'Master DB username'
+        required: true
+      db_password:
+        description: 'Master DB password'
+        required: true
+      db_identifier:
+        description: 'RDS instance identifier'
+        required: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: terraform init \
+          -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+          -backend-config="key=idp/${{ github.ref_name }}.tfstate" \
+          -backend-config="dynamodb_table=${{ secrets.TF_DDB_TABLE }}"
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve \
+          -var="db_username=${{ github.event.inputs.db_username }}" \
+          -var="db_password=${{ github.event.inputs.db_password }}" \
+          -var="db_identifier=${{ github.event.inputs.db_identifier }}"
